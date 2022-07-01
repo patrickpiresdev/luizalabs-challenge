@@ -18,8 +18,12 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/wishlist")
 public class WishlistController {
+    private final Client client;
+
     @Autowired
-    private Client client;
+    public WishlistController(Client client) {
+        this.client = client;
+    }
 
     @GetMapping
     public Set<String> all() {
@@ -36,8 +40,15 @@ public class WishlistController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDto> detail(@PathVariable int id) {
-        Optional<Product> product = client.getProductFromWishList(id);
+        Optional<Product> product = client.getFromWishlist(id);
         if (product.isEmpty()) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(new ProductDto(product.get()));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> remove(@PathVariable int id) {
+        Optional<Product> product = client.removeFromWishlist(id);
+        if (product.isEmpty()) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().build();
     }
 }

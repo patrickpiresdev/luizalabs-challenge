@@ -17,7 +17,7 @@ public class Client {
 
     public int addToWishlist(Product product) {
         Product clone = product.clone();
-        clone.setId(wishlist.size()+1);
+        clone.setId(wishlist.size());
         wishlist.add(clone);
         return clone.getId();
     }
@@ -26,8 +26,13 @@ public class Client {
         return wishlist.stream().map(Product::clone).collect(Collectors.toList());
     }
 
-    public Optional<Product> getProductFromWishList(int id) {
+    public Optional<Product> getFromWishlist(int id) {
         if (id >= wishlist.size()) return Optional.empty();
         return Optional.of(wishlist.get(id));
+    }
+
+    public Optional<Product> removeFromWishlist(int id) {
+        if (id >= wishlist.size()) return Optional.empty();
+        return Optional.of(wishlist.remove(id));
     }
 }
