@@ -1,24 +1,33 @@
 package com.ptk.luizalabschallenge.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Client {
     private final String name;
-    private final Set<Product> wishlist;
+    private final List<Product> wishlist;
     private final int WISHLIST_MAX = 20;
 
     public Client(String name) {
         this.name = name;
-        this.wishlist = new HashSet<>(WISHLIST_MAX);
+        this.wishlist = new ArrayList<>(WISHLIST_MAX);
     }
 
-    public void addToWishlist(Product product) {
-        wishlist.add(product.clone());
+    public int addToWishlist(Product product) {
+        Product clone = product.clone();
+        clone.setId(wishlist.size()+1);
+        wishlist.add(clone);
+        return clone.getId();
     }
 
-    public Set<Product> wishlist() {
-        return wishlist.stream().map(Product::clone).collect(Collectors.toSet());
+    public List<Product> wishlist() {
+        return wishlist.stream().map(Product::clone).collect(Collectors.toList());
+    }
+
+    public Optional<Product> getProductFromWishList(int id) {
+        if (id >= wishlist.size()) return Optional.empty();
+        return Optional.of(wishlist.get(id));
     }
 }
