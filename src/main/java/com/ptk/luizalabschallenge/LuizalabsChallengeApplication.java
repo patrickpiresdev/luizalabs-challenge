@@ -5,12 +5,20 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import com.ptk.luizalabschallenge.dao.ProductDAO;
 import com.ptk.luizalabschallenge.dao.WishlistDAO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
+@PropertySource("classpath:application.properties")
 public class LuizalabsChallengeApplication {
+    @Value("${mongodb.connection-string}")
+    private String mongodbConnectionString;
+
+    @Value("${mongodb.database}")
+    private String mongodbDatabase;
 
 	public static void main(String[] args) {
 		SpringApplication.run(LuizalabsChallengeApplication.class, args);
@@ -18,9 +26,8 @@ public class LuizalabsChallengeApplication {
 
     @Bean
     public MongoDatabase getDatabase() {
-        String mongodbConnectionString = "mongodb://localhost:27017";
         MongoClient mongoClient = MongoClients.create(mongodbConnectionString);
-        return mongoClient.getDatabase("luizalabs");
+        return mongoClient.getDatabase(mongodbDatabase);
     }
 
     @Bean
