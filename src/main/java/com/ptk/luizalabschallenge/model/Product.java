@@ -1,28 +1,36 @@
 package com.ptk.luizalabschallenge.model;
 
+import org.bson.Document;
+import org.bson.types.ObjectId;
+
 public class Product {
-    private int id;
+    private String id;
     private final String title;
     private final String description;
 
-    public Product(String title, String description) {
+    public Product(String id, String title, String description) {
+        this.id = id;
         this.title = title;
         this.description = description;
+    }
+
+    public static Product from(Document product) {
+        return new Product(((ObjectId) product.get("_id")).toString(), (String) product.get("title"), (String) product.get("description"));
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
     public Product clone() {
-        return new Product(title, description);
+        return new Product(id, title, description);
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 

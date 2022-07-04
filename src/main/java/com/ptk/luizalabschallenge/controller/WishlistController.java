@@ -1,5 +1,6 @@
 package com.ptk.luizalabschallenge.controller;
 
+import com.ptk.luizalabschallenge.dao.ProductDAO;
 import com.ptk.luizalabschallenge.dao.WishlistDAO;
 import com.ptk.luizalabschallenge.dto.ProductDto;
 import com.ptk.luizalabschallenge.model.Client;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/wishlist")
@@ -20,21 +20,23 @@ public class WishlistController {
     private final String clientId = "62c0e833a9245e4e1386ed31";
     private final Client client;
     private final WishlistDAO wishlistDao;
+    private final ProductDAO productDao;
 
     @Autowired
-    public WishlistController(Client client, WishlistDAO wishlistDao) {
+    public WishlistController(Client client, WishlistDAO wishlistDao, ProductDAO productDao) {
         this.client = client;
         this.wishlistDao = wishlistDao;
+        this.productDao = productDao;
     }
 
     @GetMapping
-    public List<String> all() {
+    public List<Product> all() {
         String matchAggregationStage = "{ $match: { client_id: ObjectId('" + clientId + "') } }";
         String lookupAggregationStage = "{ $lookup: { from: 'product', localField: 'product_id', foreignField: '_id', as: 'product' } }";
         List<Document> aggregationStages = Arrays.asList(
                 Document.parse(matchAggregationStage),
                 Document.parse(lookupAggregationStage));
-        return wishlistDao.aggregate(aggregationStages).stream().map(Product::getTitle).collect(Collectors.toList());
+        return wishlistDao.aggregate(aggregationStages);
     }
 
     @PostMapping
@@ -45,8 +47,9 @@ public class WishlistController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> detail(@PathVariable int id) {
-        Optional<Product> product = client.getFromWishlist(id);
+    public ResponseEntity<ProductDto> detail(@PathVariable String id) {
+        String filter = "{ _id: ObjectId('" + id + "') }";
+        Optional<Product> product = productDao.find(Document.parse(filter));
         if (product.isEmpty()) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(new ProductDto(product.get()));
     }

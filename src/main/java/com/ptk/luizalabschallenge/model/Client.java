@@ -15,9 +15,9 @@ public class Client {
         this.wishlist = new ArrayList<>(WISHLIST_MAX);
     }
 
-    public int addToWishlist(Product product) {
+    public String addToWishlist(Product product) {
         Product clone = product.clone();
-        clone.setId(wishlist.size());
+        clone.setId(String.valueOf(wishlist.size()));
         wishlist.add(clone);
         return clone.getId();
     }
