@@ -42,22 +42,28 @@ public class WishlistController {
     @PostMapping
     public ResponseEntity<?> add(@RequestBody String productId) {
         String wishlistItem = "{ client_id: ObjectId('" + clientId + "'), product_id: ObjectId('" + productId + "') }";
-        wishlistDao.insert(Document.parse(wishlistItem));
+        Document document = Document.parse(wishlistItem);
+        Optional<Document> wishlistItemDoc = wishlistDao.find(document);
+        if (wishlistItemDoc.isEmpty())
+            wishlistDao.insert(document);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> detail(@PathVariable String id) {
-        String filter = "{ _id: ObjectId('" + id + "') }";
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductDto> detail(@PathVariable String productId) {
+        String filter = "{ _id: ObjectId('" + productId + "') }";
         Optional<Product> product = productDao.find(Document.parse(filter));
         if (product.isEmpty()) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(new ProductDto(product.get()));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> remove(@PathVariable int id) {
-        Optional<Product> product = client.removeFromWishlist(id);
-        if (product.isEmpty()) return ResponseEntity.notFound().build();
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<?> remove(@PathVariable String productId) {
+        String wishlistItem = "{ client_id: ObjectId('" + clientId + "'), product_id: ObjectId('" + productId + "') }";
+        Document document = Document.parse(wishlistItem);
+        Optional<Document> wishlistItemDoc = wishlistDao.find(document);
+        if (wishlistItemDoc.isEmpty()) return ResponseEntity.notFound().build();
+        wishlistDao.remove(document);
         return ResponseEntity.ok().build();
     }
 }

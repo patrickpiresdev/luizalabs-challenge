@@ -1,12 +1,14 @@
 package com.ptk.luizalabschallenge.dao;
 
 import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoDatabase;
 import com.ptk.luizalabschallenge.model.Product;
 import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class WishlistDAO {
 
@@ -32,5 +34,18 @@ public class WishlistDAO {
 
     public void insert(Document wishlistItem) {
         database.getCollection("wishlist_item").insertOne(wishlistItem);
+    }
+
+    public void remove(Document wishlistItem) {
+        database.getCollection("wishlist_item").deleteMany(wishlistItem);
+    }
+
+    public Optional<Document> find(Document filter) {
+        FindIterable<Document> wishlistItemIterable = database.getCollection("wishlist_item").find(filter);
+        List<Document> wishlistItems = new ArrayList<>();
+        for (Document wishlistItem : wishlistItemIterable)
+            wishlistItems.add(wishlistItem);
+        if (wishlistItems.size() == 0) return Optional.empty();
+        return Optional.of(wishlistItems.get(0));
     }
 }
