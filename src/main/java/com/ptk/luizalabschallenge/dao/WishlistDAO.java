@@ -29,4 +29,8 @@ public class WishlistDAO {
         Document product = ((List<Document>) wishlistItem.get("product")).get(0);
         return new Product((String) product.get("title"), (String) product.get("description"));
     }
+
+    public void insert(Document wishlistItem) {
+        database.getCollection("wishlist_item").insertOne(wishlistItem);
+    }
 }

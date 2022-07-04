@@ -2,17 +2,13 @@ package com.ptk.luizalabschallenge.controller;
 
 import com.ptk.luizalabschallenge.dao.WishlistDAO;
 import com.ptk.luizalabschallenge.dto.ProductDto;
-import com.ptk.luizalabschallenge.dto.ProductForm;
 import com.ptk.luizalabschallenge.model.Client;
 import com.ptk.luizalabschallenge.model.Product;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.validation.Valid;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -42,11 +38,10 @@ public class WishlistController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductDto> add(@RequestBody @Valid ProductForm productForm, UriComponentsBuilder uriBuilder) {
-        Product product = productForm.convert();
-        int id = client.addToWishlist(product);
-        URI uri = uriBuilder.path("/wishlist/{id}").buildAndExpand(id).toUri();
-        return ResponseEntity.created(uri).body(new ProductDto(product));
+    public ResponseEntity<?> add(@RequestBody String productId) {
+        String wishlistItem = "{ client_id: ObjectId('" + clientId + "'), product_id: ObjectId('" + productId + "') }";
+        wishlistDao.insert(Document.parse(wishlistItem));
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")
