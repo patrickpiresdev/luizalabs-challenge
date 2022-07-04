@@ -1,9 +1,6 @@
 package com.ptk.luizalabschallenge.controller;
 
-import com.ptk.luizalabschallenge.dao.ProductDAO;
 import com.ptk.luizalabschallenge.dao.WishlistDAO;
-import com.ptk.luizalabschallenge.dto.ProductDto;
-import com.ptk.luizalabschallenge.model.Client;
 import com.ptk.luizalabschallenge.model.Product;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +15,11 @@ import java.util.Optional;
 @RequestMapping("/wishlist")
 public class WishlistController {
     private final String clientId = "62c0e833a9245e4e1386ed31";
-    private final Client client;
     private final WishlistDAO wishlistDao;
-    private final ProductDAO productDao;
 
     @Autowired
-    public WishlistController(Client client, WishlistDAO wishlistDao, ProductDAO productDao) {
-        this.client = client;
+    public WishlistController(WishlistDAO wishlistDao) {
         this.wishlistDao = wishlistDao;
-        this.productDao = productDao;
     }
 
     @GetMapping
@@ -47,14 +40,6 @@ public class WishlistController {
         if (wishlistItemDoc.isEmpty())
             wishlistDao.insert(document);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/{productId}")
-    public ResponseEntity<ProductDto> detail(@PathVariable String productId) {
-        String filter = "{ _id: ObjectId('" + productId + "') }";
-        Optional<Product> product = productDao.find(Document.parse(filter));
-        if (product.isEmpty()) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(new ProductDto(product.get()));
     }
 
     @DeleteMapping("/{productId}")

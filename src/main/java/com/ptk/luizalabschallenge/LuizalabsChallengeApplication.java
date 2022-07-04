@@ -5,8 +5,6 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import com.ptk.luizalabschallenge.dao.ProductDAO;
 import com.ptk.luizalabschallenge.dao.WishlistDAO;
-import com.ptk.luizalabschallenge.model.Client;
-import com.ptk.luizalabschallenge.model.Product;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -18,28 +16,20 @@ public class LuizalabsChallengeApplication {
 		SpringApplication.run(LuizalabsChallengeApplication.class, args);
 	}
 
-	@Bean
-	public Client createTmpData() {
-        Client client = new Client("John Tmp Smith");
-		client.addToWishlist(new Product("1", "Tmp 1", "Temporary product 1"));
-		client.addToWishlist(new Product("2", "Tmp 2", "Temporary product 2"));
-		client.addToWishlist(new Product("3", "Tmp 3", "Temporary product 3"));
-		return client;
-	}
-
     @Bean
-    public WishlistDAO createWishlistDao() {
+    public MongoDatabase getDatabase() {
         String mongodbConnectionString = "mongodb://localhost:27017";
         MongoClient mongoClient = MongoClients.create(mongodbConnectionString);
-        MongoDatabase database = mongoClient.getDatabase("luizalabs");
+        return mongoClient.getDatabase("luizalabs");
+    }
+
+    @Bean
+    public WishlistDAO createWishlistDao(MongoDatabase database) {
         return new WishlistDAO(database);
     }
 
 	@Bean
-    public ProductDAO createProductDao() {
-        String mongodbConnectionString = "mongodb://localhost:27017";
-        MongoClient mongoClient = MongoClients.create(mongodbConnectionString);
-        MongoDatabase database = mongoClient.getDatabase("luizalabs");
+    public ProductDAO createProductDao(MongoDatabase database) {
         return new ProductDAO(database);
     }
 }

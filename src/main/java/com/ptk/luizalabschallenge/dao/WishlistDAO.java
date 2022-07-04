@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class WishlistDAO {
-
     private final MongoDatabase database;
 
     public WishlistDAO(MongoDatabase database) {
