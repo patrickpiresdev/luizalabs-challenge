@@ -1,14 +1,21 @@
 package com.ptk.luizalabschallenge.dao;
 
 import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoDatabase;
 import com.ptk.luizalabschallenge.model.Product;
+import com.ptk.luizalabschallenge.model.WishlistItem;
 import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static com.mongodb.client.model.Aggregates.lookup;
+import static com.mongodb.client.model.Aggregates.match;
+import static com.mongodb.client.model.Filters.eq;
 
 public class WishlistDAO {
     private final MongoDatabase database;
@@ -17,10 +24,13 @@ public class WishlistDAO {
         this.database = database;
     }
 
-    public List<Product> aggregate(List<Document> stages) {
+    public List<Product> all(String clientId) {
+        List<Bson> stages = Arrays.asList(
+                match(eq("client_id", new ObjectId(clientId))),
+                lookup("product", "product_id","_id", "product"));
         AggregateIterable<Document> wishlistIterable = database.getCollection("wishlist_item")
                 .aggregate(stages);
-        List<Product> wishlist = new ArrayList<>();
+        ArrayList<Product> wishlist = new ArrayList<>();
         for (Document wishlistItem : wishlistIterable)
             wishlist.add(productFrom(wishlistItem));
         return wishlist;
@@ -31,20 +41,29 @@ public class WishlistDAO {
         return Product.from(product);
     }
 
-    public void insert(Document wishlistItem) {
-        database.getCollection("wishlist_item").insertOne(wishlistItem);
+    public void insert(WishlistItem wishlistItem) {
+        database.getCollection("wishlist_item").insertOne(documentFrom(wishlistItem));
     }
 
-    public void remove(Document wishlistItem) {
-        database.getCollection("wishlist_item").deleteMany(wishlistItem);
+    private Document documentFrom(WishlistItem wishlistItem) {
+        return new Document("client_id", new ObjectId(wishlistItem.getClientId()))
+                .append("product_id", new ObjectId(wishlistItem.getProductId()));
     }
 
-    public Optional<Document> find(Document filter) {
-        FindIterable<Document> wishlistItemIterable = database.getCollection("wishlist_item").find(filter);
-        List<Document> wishlistItems = new ArrayList<>();
-        for (Document wishlistItem : wishlistItemIterable)
-            wishlistItems.add(wishlistItem);
-        if (wishlistItems.size() == 0) return Optional.empty();
-        return Optional.of(wishlistItems.get(0));
+    public void remove(WishlistItem wishlistItem) {
+        database.getCollection("wishlist_item").deleteOne(documentFrom(wishlistItem));
+    }
+
+    public Optional<WishlistItem> find(WishlistItem wishlistItem) {
+        Document document = database.getCollection("wishlist_item")
+                .find(documentFrom(wishlistItem)).first();
+        if (document == null) return Optional.empty();
+        return Optional.of(wishlistItemFrom(document));
+    }
+
+    private WishlistItem wishlistItemFrom(Document document) {
+        return new WishlistItem(
+                ((ObjectId) document.get("client_id")).toString(),
+                ((ObjectId) document.get("product_id")).toString());
     }
 }

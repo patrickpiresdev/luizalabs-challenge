@@ -2,14 +2,12 @@ package com.ptk.luizalabschallenge.controller;
 
 import com.ptk.luizalabschallenge.dao.WishlistDAO;
 import com.ptk.luizalabschallenge.model.Product;
-import org.bson.Document;
+import com.ptk.luizalabschallenge.model.WishlistItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/wishlist")
@@ -22,33 +20,33 @@ public class WishlistController {
         this.wishlistDao = wishlistDao;
     }
 
-    @GetMapping
-    public List<Product> all() {
-        String matchAggregationStage = "{ $match: { client_id: ObjectId('" + clientId + "') } }";
-        String lookupAggregationStage = "{ $lookup: { from: 'product', localField: 'product_id', foreignField: '_id', as: 'product' } }";
-        List<Document> aggregationStages = Arrays.asList(
-                Document.parse(matchAggregationStage),
-                Document.parse(lookupAggregationStage));
-        return wishlistDao.aggregate(aggregationStages);
-    }
-
-    @PostMapping
-    public ResponseEntity<?> add(@RequestBody String productId) {
-        String wishlistItem = "{ client_id: ObjectId('" + clientId + "'), product_id: ObjectId('" + productId + "') }";
-        Document document = Document.parse(wishlistItem);
-        Optional<Document> wishlistItemDoc = wishlistDao.find(document);
-        if (wishlistItemDoc.isEmpty())
-            wishlistDao.insert(document);
+    @PostMapping("/{productId}")
+    public ResponseEntity<Object> add(@PathVariable String productId) {
+        WishlistItem wishlistItem = new WishlistItem(clientId, productId);
+        if (wishlistDao.find(wishlistItem).isEmpty())
+            wishlistDao.insert(wishlistItem);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<?> remove(@PathVariable String productId) {
-        String wishlistItem = "{ client_id: ObjectId('" + clientId + "'), product_id: ObjectId('" + productId + "') }";
-        Document document = Document.parse(wishlistItem);
-        Optional<Document> wishlistItemDoc = wishlistDao.find(document);
-        if (wishlistItemDoc.isEmpty()) return ResponseEntity.notFound().build();
-        wishlistDao.remove(document);
+    public ResponseEntity<Object> remove(@PathVariable String productId) {
+        WishlistItem wishlistItem = new WishlistItem(clientId, productId);
+        if (wishlistDao.find(wishlistItem).isEmpty())
+            return ResponseEntity.notFound().build();
+        wishlistDao.remove(wishlistItem);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public List<Product> all() {
+        return wishlistDao.all(clientId);
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<Object> present(@PathVariable String productId) {
+        WishlistItem wishlistItem = new WishlistItem(clientId, productId);
+        if (wishlistDao.find(wishlistItem).isEmpty())
+            return ResponseEntity.notFound().build();
         return ResponseEntity.ok().build();
     }
 }
