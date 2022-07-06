@@ -1,6 +1,5 @@
 package com.ptk.luizalabschallenge.dao;
 
-import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.ptk.luizalabschallenge.model.Wishlist;
