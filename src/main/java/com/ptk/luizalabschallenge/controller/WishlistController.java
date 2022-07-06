@@ -38,10 +38,13 @@ public class WishlistController {
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<Object> remove(@PathVariable String productId) {
-        WishlistItem wishlistItem = new WishlistItem(defaultClientId, productId);
-        if (wishlistDao.find(wishlistItem).isEmpty())
+        try {
+            wishlistService.remove(productId);
+        } catch (IllegalStateException ex) {
             return ResponseEntity.notFound().build();
-        wishlistDao.remove(wishlistItem);
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().build();
+        }
         return ResponseEntity.ok().build();
     }
 

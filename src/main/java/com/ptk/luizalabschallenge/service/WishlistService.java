@@ -34,4 +34,11 @@ public class WishlistService {
     private boolean productAlreadyInWishlist(String productId, List<Product> products) {
         return products.stream().map(Product::getId).anyMatch(id -> id.equals(productId));
     }
+
+    public void remove(String productId) {
+        WishlistItem wishlistItem = new WishlistItem(defaultClientId, productId);
+        if (wishlistDao.find(wishlistItem).isEmpty())
+            throw new IllegalStateException("The product is not on wishlist to be removed!");
+        wishlistDao.remove(wishlistItem);
+    }
 }
