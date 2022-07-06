@@ -58,10 +58,13 @@ public class WishlistController {
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<Object> present(@PathVariable String productId) {
-        WishlistItem wishlistItem = new WishlistItem(defaultClientId, productId);
-        if (wishlistDao.find(wishlistItem).isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Object> isPresent(@PathVariable String productId) {
+        try {
+            if (!wishlistService.isPresent(new WishlistItem(defaultClientId, productId)))
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.ok().build();
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

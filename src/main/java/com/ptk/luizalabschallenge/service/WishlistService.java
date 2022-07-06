@@ -29,12 +29,16 @@ public class WishlistService {
 
     public void remove(String productId) {
         WishlistItem wishlistItem = new WishlistItem(defaultClientId, productId);
-        if (wishlistDao.find(wishlistItem).isEmpty())
+        if (!isPresent(wishlistItem))
             throw new IllegalStateException("The product is not on wishlist to be removed!");
         wishlistDao.remove(wishlistItem);
     }
 
     public List<Product> all(String defaultClientId) {
         return wishlistDao.all(defaultClientId).toProductsList();
+    }
+
+    public boolean isPresent(WishlistItem wishlistItem) {
+        return wishlistDao.find(wishlistItem).isPresent();
     }
 }
