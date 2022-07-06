@@ -14,6 +14,7 @@ import java.util.List;
 public class WishlistController {
     private final String clientId = "62c0e833a9245e4e1386ed31";
     private final WishlistDAO wishlistDao;
+    private final int WISHLIST_MAX = 20;
 
     @Autowired
     public WishlistController(WishlistDAO wishlistDao) {
@@ -22,10 +23,24 @@ public class WishlistController {
 
     @PostMapping("/{productId}")
     public ResponseEntity<Object> add(@PathVariable String productId) {
-        WishlistItem wishlistItem = new WishlistItem(clientId, productId);
-        if (wishlistDao.find(wishlistItem).isEmpty())
-            wishlistDao.insert(wishlistItem);
+        List<Product> wishlist = wishlistDao.all(clientId);
+        // TODO: return response informing that the product was not added
+        if (checkIfCanNotAddToWishlist(productId, wishlist))
+            return ResponseEntity.ok().build();
+        wishlistDao.insert(new WishlistItem(clientId, productId));
         return ResponseEntity.ok().build();
+    }
+
+    private boolean checkIfCanNotAddToWishlist(String productId, List<Product> wishlist) {
+        return wishlistIsFull(wishlist) || productAlreadyInWishlist(productId, wishlist);
+    }
+
+    private boolean wishlistIsFull(List<Product> wishlist) {
+        return wishlist.size() == WISHLIST_MAX;
+    }
+
+    private boolean productAlreadyInWishlist(String productId, List<Product> products) {
+        return products.stream().map(Product::getId).anyMatch(id -> id.equals(productId));
     }
 
     @DeleteMapping("/{productId}")
