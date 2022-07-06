@@ -5,6 +5,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.ptk.luizalabschallenge.dao.WishlistDAO;
+import com.ptk.luizalabschallenge.service.WishlistService;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,7 +51,11 @@ public class LuizalabsChallengeApplication {
     private String createDefaultClient(MongoCollection<Document> clientCollection) {
         Document defaultClient = new Document("name", "default");
         clientCollection.insertOne(defaultClient);
-        ObjectId oid = (ObjectId) defaultClient.get("_id");
-        return oid.toString();
+        return ((ObjectId) defaultClient.get("_id")).toString();
+    }
+
+    @Bean
+    public WishlistService getWishlistService(WishlistDAO wishlistDAO, String defaultClientId) {
+        return new WishlistService(wishlistDAO, defaultClientId);
     }
 }
