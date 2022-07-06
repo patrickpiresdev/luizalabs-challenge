@@ -49,8 +49,12 @@ public class WishlistController {
     }
 
     @GetMapping
-    public List<Product> all() {
-        return wishlistDao.all(defaultClientId);
+    public ResponseEntity<List<Product>> all() {
+        try {
+            return ResponseEntity.ok(wishlistService.all(defaultClientId));
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping("/{productId}")
