@@ -12,22 +12,23 @@ import java.util.List;
 @RestController
 @RequestMapping("/wishlist")
 public class WishlistController {
-    private final String clientId = "62c0e833a9245e4e1386ed31";
+    private final String defaultClientId;
     private final WishlistDAO wishlistDao;
     private final int WISHLIST_MAX = 20;
 
     @Autowired
-    public WishlistController(WishlistDAO wishlistDao) {
+    public WishlistController(WishlistDAO wishlistDao, String defaultClientId) {
         this.wishlistDao = wishlistDao;
+        this.defaultClientId = defaultClientId;
     }
 
     @PostMapping("/{productId}")
     public ResponseEntity<Object> add(@PathVariable String productId) {
-        List<Product> wishlist = wishlistDao.all(clientId);
+        List<Product> wishlist = wishlistDao.all(defaultClientId);
         // TODO: return response informing that the product was not added
         if (checkIfCanNotAddToWishlist(productId, wishlist))
             return ResponseEntity.ok().build();
-        wishlistDao.insert(new WishlistItem(clientId, productId));
+        wishlistDao.insert(new WishlistItem(defaultClientId, productId));
         return ResponseEntity.ok().build();
     }
 
@@ -45,7 +46,7 @@ public class WishlistController {
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<Object> remove(@PathVariable String productId) {
-        WishlistItem wishlistItem = new WishlistItem(clientId, productId);
+        WishlistItem wishlistItem = new WishlistItem(defaultClientId, productId);
         if (wishlistDao.find(wishlistItem).isEmpty())
             return ResponseEntity.notFound().build();
         wishlistDao.remove(wishlistItem);
@@ -54,12 +55,12 @@ public class WishlistController {
 
     @GetMapping
     public List<Product> all() {
-        return wishlistDao.all(clientId);
+        return wishlistDao.all(defaultClientId);
     }
 
     @GetMapping("/{productId}")
     public ResponseEntity<Object> present(@PathVariable String productId) {
-        WishlistItem wishlistItem = new WishlistItem(clientId, productId);
+        WishlistItem wishlistItem = new WishlistItem(defaultClientId, productId);
         if (wishlistDao.find(wishlistItem).isEmpty())
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok().build();
