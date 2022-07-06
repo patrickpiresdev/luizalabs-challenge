@@ -1,6 +1,7 @@
 package com.ptk.luizalabschallenge.dao;
 
 import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.ptk.luizalabschallenge.model.Wishlist;
 import com.ptk.luizalabschallenge.model.WishlistItem;
@@ -17,31 +18,29 @@ import static com.mongodb.client.model.Aggregates.match;
 import static com.mongodb.client.model.Filters.eq;
 
 public class WishlistDAO {
-    private final MongoDatabase database;
+    private final MongoCollection<Document> wishlistItemCollection;
 
     public WishlistDAO(MongoDatabase database) {
-        this.database = database;
+        wishlistItemCollection = database.getCollection("wishlist_item");
     }
 
     public void insert(WishlistItem wishlistItem) {
-        database.getCollection("wishlist_item").insertOne(wishlistItem.toDocument());
+        wishlistItemCollection.insertOne(wishlistItem.toDocument());
     }
 
     public void remove(WishlistItem wishlistItem) {
-        database.getCollection("wishlist_item").deleteOne(wishlistItem.toDocument());
+        wishlistItemCollection.deleteOne(wishlistItem.toDocument());
     }
 
     public Wishlist all(String clientId) {
         List<Bson> stages = Arrays.asList(
                 match(eq("client_id", new ObjectId(clientId))),
                 lookup("product", "product_id","_id", "product"));
-        AggregateIterable<Document> wishlistIterable = database.getCollection("wishlist_item")
-                .aggregate(stages);
-        return Wishlist.from(wishlistIterable);
+        return Wishlist.from(wishlistItemCollection.aggregate(stages));
     }
 
     public Optional<WishlistItem> find(WishlistItem wishlistItem) {
-        Document document = database.getCollection("wishlist_item")
+        Document document = wishlistItemCollection
                 .find(wishlistItem.toDocument()).first();
         if (document == null) return Optional.empty();
         return Optional.of(WishlistItem.from(document));
