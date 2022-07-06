@@ -47,4 +47,12 @@ public class WishlistItem {
         if (documents == null) return null;
         return Product.from(documents.get(0));
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof WishlistItem)) return false;
+        if (this == obj) return true;
+        return clientId.equals(((WishlistItem) obj).clientId) &&
+                productId.equals(((WishlistItem) obj).productId);
+    }
 }

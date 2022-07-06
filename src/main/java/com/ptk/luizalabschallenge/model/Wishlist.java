@@ -23,7 +23,7 @@ public class Wishlist {
         return wishlist;
     }
 
-    private void add(WishlistItem item) {
+    public void add(WishlistItem item) {
         items.add(item);
     }
 
