@@ -34,11 +34,15 @@ public class WishlistService {
         wishlistDao.remove(wishlistItem);
     }
 
-    public List<Product> all(String defaultClientId) {
+    public List<Product> all() {
         return wishlistDao.all(defaultClientId).toProductsList();
     }
 
-    public boolean isPresent(WishlistItem wishlistItem) {
+    public boolean isPresent(String productId) {
+        return isPresent(new WishlistItem(defaultClientId, productId));
+    }
+
+    private boolean isPresent(WishlistItem wishlistItem) {
         return wishlistDao.find(wishlistItem).isPresent();
     }
 }
