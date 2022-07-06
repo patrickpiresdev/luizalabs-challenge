@@ -32,4 +32,14 @@ public class Product {
     public String getDescription() {
         return description;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Product)) return false;
+        Product other = (Product) obj;
+        if (this == other) return true;
+        return id.equals(other.id) &&
+                title.equals(other.title) &&
+                description.equals(other.description);
+    }
 }
