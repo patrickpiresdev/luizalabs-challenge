@@ -40,10 +40,10 @@ Dito isso, é necessário popular o banco com alguns produtos. Para isso:
 Alternativamente, deixarei aqui abaixo um código pronto para apenas ser executado para popolar o mongo
 1. `use <database>` -> Aqui em `<database>` coloque o mesmo database doo `application.properties`
 2. ```javascript
-   db.getCollection('product').insertMany([
-        { name: "product 1", description: "product 1 description" },
-        { name: "product 2", description: "product 2 description" },
-        { name: "product 3", description: "product 3 description" },
-        { name: "product 4", description: "product 4 description" }
+   db.product.insertMany([
+        { title: "product 1", description: "product 1 description" },
+        { title: "product 2", description: "product 2 description" },
+        { title: "product 3", description: "product 3 description" },
+        { title: "product 4", description: "product 4 description" }
    ])
    ```
