@@ -36,3 +36,14 @@ Para conseguirmos manipular a wishlist, necessitamos de produtos (é claro) para
 Dito isso, é necessário popular o banco com alguns produtos. Para isso:
 1. Crie a coleção `product`
 2. Popule a mesma com dados de produtos no formato `{ name: <product-name> description: <product-description> }`
+
+Alternativamente, deixarei aqui abaixo um código pronto para apenas ser executado para popolar o mongo
+1. `use <database>` -> Aqui em `<database>` coloque o mesmo database doo `application.properties`
+2. ```javascript
+   db.getCollection('product').insertMany([
+        { name: "product 1", description: "product 1 description" },
+        { name: "product 2", description: "product 2 description" },
+        { name: "product 3", description: "product 3 description" },
+        { name: "product 4", description: "product 4 description" }
+   ])
+   ```
